@@ -51,14 +51,21 @@ void loop() {
   // Update the cloud variables with the latest readings for humidity and temperature
   humidity = hum;
   temperature = temp;
- 
-  // The MQ135 sensor provides an analog value that correlates with air quality
+
+  // The MQ135 sensor provides an analogue value that correlates with air quality
   // Higher values indicate poorer air quality
   int airQualityValue = analogRead(MQ135_PIN); // Read the air quality value from the MQ135 sensor
   Serial.print("Air Quality: ");
   Serial.println(airQualityValue); // Print the air quality value to the Serial Monitor for debugging
 
   airQuality = airQualityValue; // Update the cloud variable with the latest reading for air quality
+
+  // Check if any condition is true and trigger the buzzer
+  if (temp > 24 || hum > 75 || airQualityValue > 130) {
+    digitalWrite(BUZZER_PIN, HIGH); // Turn on the buzzer
+  } else {
+    digitalWrite(BUZZER_PIN, LOW); // Turn off the buzzer
+  }
 }
 
 // The methods below are required for handling changes to the cloud variables
