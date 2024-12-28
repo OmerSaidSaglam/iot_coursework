@@ -52,8 +52,6 @@ void loop() {
   humidity = hum;
   temperature = temp;
 
-  // The MQ135 sensor provides an analogue value that correlates with air quality
-  // Higher values indicate poorer air quality
   int airQualityValue = analogRead(MQ135_PIN); // Read the air quality value from the MQ135 sensor
   Serial.print("Air Quality: ");
   Serial.println(airQualityValue); // Print the air quality value to the Serial Monitor for debugging
@@ -66,6 +64,39 @@ void loop() {
   } else {
     digitalWrite(BUZZER_PIN, LOW); // Turn off the buzzer
   }
+
+  unsigned long currentTime = millis();
+  if (currentTime - lastSwitchTime > switchInterval) { // Check if the specified interval (4 seconds) has passed
+    // Increment currentScreen by 1, then apply modulo 2 to keep the value within the range of 0 and 1
+    // For example, if currentScreen is 0: (0 + 1) % 2 = 1
+    // If currentScreen is 1: (1 + 1) % 2 = 0
+    // This ensures that currentScreen alternates between 0 and 1 every time
+    currentScreen = (currentScreen + 1) % 2;
+    lastSwitchTime = currentTime; // Update the last time the screen was switched to the current time
+  }
+ 
+  if (currentScreen != lastScreen) {
+    lcd.clear(); // Clear the LCD screen for a new page
+    lastScreen = currentScreen; // Update the last screen to the current one
+  }
+
+  // Display logic based on page
+  if (currentScreen == 0) {
+    lcd.setCursor(0, 0);
+    lcd.print("Temp: ");
+    lcd.print(temp);
+    lcd.print(" "); // Space between the temperature and the degree symbol
+    lcd.print((char)223); // Degree symbol
+    lcd.print("C");
+    lcd.setCursor(0, 1);
+    lcd.print("Hum: " + String(hum) + " %");
+  } else if (currentScreen == 1) {
+    lcd.setCursor(0, 0);
+    lcd.print("Air Quality: ");
+    lcd.print(airQualityValue);
+  }
+  // Pause for 0.5 seconds to slow down the loop and make the readings readable on the LCD screen
+  delay(500);
 }
 
 // The methods below are required for handling changes to the cloud variables
